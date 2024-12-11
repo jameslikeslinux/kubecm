@@ -64,15 +64,6 @@
         "20.04",
         "22.04"
       ]
-    },
-    {
-      "operatingsystem": "windows",
-      "operatingsystemrelease": [
-        "2019",
-        "2022",
-        "10",
-        "11"
-      ]
     }
   ],
   "requirements": [

@@ -1,0 +1,2 @@
+---
+kubecm::deploy::builddir: 'build'

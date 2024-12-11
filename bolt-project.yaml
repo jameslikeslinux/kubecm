@@ -1,0 +1,5 @@
+---
+name: kubecm
+
+plans:
+  - kubecm::deploy
