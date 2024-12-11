@@ -1,5 +1,8 @@
 ---
 name: kubecm
 
+modules:
+  - puppetlabs-stdlib
+
 plans:
   - kubecm::deploy

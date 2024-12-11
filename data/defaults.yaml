@@ -1,2 +1,5 @@
 ---
-kubecm::deploy::builddir: 'build'
+kubecm::deploy::build_dir: 'build'
+kubecm::deploy::resources_key: 'kubecm::deploy::resources'
+kubecm::deploy::values_key: 'kubecm::deploy::values'
+kubecm::deploy::patches_key: 'kubecm::deploy::patches'
