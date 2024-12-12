@@ -1,5 +1,6 @@
 ---
 kubecm::deploy::build_dir: 'build'
+kubecm::deploy::classes_key: 'kubecm::deploy::classes'
 kubecm::deploy::resources_key: 'kubecm::deploy::resources'
 kubecm::deploy::values_key: 'kubecm::deploy::values'
 kubecm::deploy::patches_key: 'kubecm::deploy::patches'

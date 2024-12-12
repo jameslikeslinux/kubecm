@@ -1,6 +1,6 @@
 # Puppet entrypoint for the kubecm::deploy plan
 #
-# This defines the following variables for use in your Hiera hiearchy
+# This defines the following variables for use in your Hiera hierarchy
 # and data, and declares other classes for your own custom variables.
 #
 #   * kubecm::deploy::release
@@ -8,16 +8,17 @@
 #   * kubecm::deploy::namespace
 #   * kubecm::deploy::parent_release
 #
-# @param classes Include other classes that define variables for lookups
+# @param classes_key Hiera key mapping a list of custom classes to declare
+# @api private
 class kubecm::deploy (
-  Array[String] $classes = [],
+  String $classes_key,
 ) {
   # lint:ignore:top_scope_facts
-  $release        = pick_default($::kubecm_release)
-  $chart          = pick_default($::kubecm_chart)
-  $namespace      = pick_default($::kubecm_namespace, 'default')
-  $parent_release = pick_default($::kubecm_parent_release)
+  $release   = pick_default($::release)
+  $chart     = pick_default($::chart)
+  $namespace = pick_default($::namespace, 'default')
+  $parent    = pick_default($::parent)
   # lint:endignore
 
-  include $classes
+  hiera_include($classes_key)
 }

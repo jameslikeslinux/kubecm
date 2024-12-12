@@ -4,10 +4,8 @@
   "author": "James Lee",
   "summary": "Control Kubernetes with Puppet",
   "license": "Apache-2.0",
-  "source": "https://github.com/jameslikeslinux/puppet-kubecm",
-  "dependencies": [
-
-  ],
+  "source": "https://github.com/jameslikeslinux/kubecm",
+  "dependencies": [],
   "operatingsystem_support": [
     {
       "operatingsystem": "CentOS",
@@ -72,7 +70,7 @@
       "version_requirement": ">= 7.24 < 9.0.0"
     }
   ],
-  "pdk-version": "3.3.0",
-  "template-url": "https://github.com/puppetlabs/pdk-templates#3.3.0",
-  "template-ref": "tags/3.3.0-0-g5d17ec1"
+  "pdk-version": "3.4.0",
+  "template-url": "https://github.com/puppetlabs/pdk-templates#3.4.0",
+  "template-ref": "tags/3.4.0-0-gd3cc13f"
 }
