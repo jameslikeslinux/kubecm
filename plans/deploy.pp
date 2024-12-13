@@ -56,7 +56,6 @@ plan kubecm::deploy (
     apply('localhost') {
       class { 'kubecm::deploy':
         build_dir          => $build_dir_real,
-        chart_source       => $chart_source,
         remove_resources   => $remove_resources,
         subchart_manifests => $subchart_manifests,
       }
