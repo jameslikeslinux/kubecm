@@ -55,6 +55,9 @@ class kubecm::deploy (
     $subchart_manifests.map |$manifest| { "${release_build_dir}/${manifest}" }:
       ensure => present;  # don't purge subcharts
 
+    "${release_build_dir}/helm.yaml":
+      ensure => present;  # don't purge helm manifest (it will be overwritten)
+
     "${release_build_dir}/resources.yaml":
       content => $resources.values.flatten.map |$r| { if $r.empty { '' } else { $r.stdlib::to_yaml } }.join;
 

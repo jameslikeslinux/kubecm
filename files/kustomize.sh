@@ -15,6 +15,5 @@ cd "$1"
 
 cat > helm.yaml
 kubectl kustomize; rc=$?
-rm -f helm.yaml
 
 exit $rc
