@@ -49,7 +49,7 @@ plan kubecm::deploy (
       $release_build_dir = file::join($abs_build_dir, $build_name)
     }
 
-    run_command("mkdir -p ${release_build_dir.shellquote}", 'localhost', 'Ensure the release build dir exists')
+    run_command("mkdir -p ${release_build_dir.shellquote}", 'localhost', "Ensure the release build dir ${build_name} exists")
 
     $subchart_manifests = $subcharts.map |$subchart| {
       $manifest = "${subchart['release']}.yaml"
