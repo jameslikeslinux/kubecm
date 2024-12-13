@@ -5,7 +5,12 @@
   "summary": "Control Kubernetes with Puppet",
   "license": "Apache-2.0",
   "source": "https://github.com/jameslikeslinux/kubecm",
-  "dependencies": [],
+  "dependencies": [
+    {
+      "name": "puppetlabs-stdlib",
+      "version_requirement": ">= 9.0.0 < 10.0.0"
+    }
+  ],
   "operatingsystem_support": [
     {
       "operatingsystem": "CentOS",

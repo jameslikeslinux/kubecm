@@ -1,0 +1,14 @@
+---
+memory_example: 2Gi # expect to be overriddden by namespace-specific config
+threads_example: 4  # expect not to be overridden
+
+resources:
+  config:
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: "%{myproject::release}-config"
+      namespace: "%{kubecm::deploy::namespace}"
+    data:
+      memory_example: "%{lookup('memory_example')}"
+      threads_example: "%{lookup('threads_example')}"

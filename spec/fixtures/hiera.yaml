@@ -1,0 +1,24 @@
+---
+version: 5
+
+defaults:
+  datadir: data
+  data_hash: yaml_data
+
+hierarchy:
+  - name: 'Releases'
+    paths:
+      - "release/%{kubecm::deploy::release}/%{kubecm::deploy::namespace}.yaml"
+      - "release/%{kubecm::deploy::release}.yaml"
+  - name: 'Charts'
+    paths:
+      - "chart/%{kubecm::deploy::chart}/%{kubecm::deploy::namespace}.yaml"
+      - "chart/%{kubecm::deploy::chart}.yaml"
+  - name: 'Common'
+    paths:
+      - 'common.yaml'
+
+plan_hierarchy:
+  - name: 'Common'
+    paths:
+      - 'common.yaml'

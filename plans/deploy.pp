@@ -27,13 +27,7 @@ plan kubecm::deploy (
   Boolean          $wait             = false,
   Array[Hash]      $subcharts        = [],
   Optional[String] $parent           = undef,
-
-  # Project settings
-  # (set your own defaults in Hiera)
-  String $build_dir     = lookup('kubecm::deploy::build_dir'),
-  String $resources_key = lookup('kubecm::deploy::resources_key'),
-  String $values_key    = lookup('kubecm::deploy::values_key'),
-  String $patches_key   = lookup('kubecm::deploy::patches_key'),
+  String           $build_dir        = lookup('kubecm::deploy::build_dir'),
 ) {
   $subchart_manifests = $subcharts.map |$subchart| {
     $manifest = "${subchart['release']}.yaml"
@@ -53,74 +47,17 @@ plan kubecm::deploy (
     $build_dir_real = file::join($pwd, $build_dir)
   }
 
+  # Build Kustomize config
   apply('localhost') {
-    include kubecm::deploy # defines variables needed for lookups
-
-    $resources = lookup($resources_key, Hash, 'hash', {}) - $remove_resources
-    $values    = lookup($values_key, Hash, 'deep', {})
-    $patches   = lookup($patches_key, Hash, 'hash', {})
-
-    file {
-      $build_dir_real:
-        ensure  => directory;
-
-      "${build_dir_real}/resources.yaml":
-        content => $resources.values.flatten.map |$r| { if $r.empty { '' } else { $r.stdlib::to_yaml } }.join;
-
-      "${build_dir_real}/values.yaml":
-        content => $values.stdlib::to_yaml;
-
-      "${build_dir_real}/kustomization.yaml":
-        content => {
-          'resources' => $subchart_manifests + ['resources.yaml', 'helm.yaml'],
-          'patches'   => $patches.keys.sort.map |$k| { $patches[$k] }.flatten.map |$p| {
-            if $p['patch'] =~ String {
-              $p
-            } else {
-              $p + { 'patch' => $p['patch'].stdlib::to_yaml }
-            }
-          },
-        }.stdlib::to_yaml;
-
-      "${build_dir_real}/kustomize.sh":
-        mode   => '0755',
-        source => 'puppet:///modules/kubecm/kustomize.sh';
-    }
-
-    if !$chart_source {
-      if $version {
-        $fake_chart_version = $version
-      } else {
-        $fake_chart_version = '0.1.0' # just something
-      }
-
-      file {
-        "${build_dir_real}/chart":
-          ensure  => directory,
-          purge   => true, # clean out old files
-          recurse => true; # recursively
-
-        "${build_dir_real}/chart/Chart.yaml":
-          content => {
-            'apiVersion'  => 'v2',
-            'name'        => $chart,
-            'description' => 'KubeCM deployment',
-            'type'        => 'application',
-            'version'     => $fake_chart_version,
-            'appVersion'  => $fake_chart_version,
-          }.stdlib::to_yaml;
-      }
-    } elsif $chart_source =~ Stdlib::Filesource {
-      file { "${build_dir_real}/chart":
-        ensure  => directory,
-        purge   => true,
-        recurse => true,
-        source  => $chart_source,
-      }
+    class { 'kubecm::deploy':
+      build_dir          => $build_dir_real,
+      chart_source       => $chart_source,
+      remove_resources   => $remove_resources,
+      subchart_manifests => $subchart_manifests,
     }
   }.kubecm::print_report
 
-  if !chart_source or $chart_source =~ Stdlib::Filesource {
+  if !$chart_source or $chart_source =~ Stdlib::Filesource {
     $chart_source_real = "${build_dir_real}/chart"
   } elsif $chart_source =~ /^(\w+)\// and $repo_url {
     $chart_source_real = $chart_source
@@ -162,7 +99,7 @@ plan kubecm::deploy (
       default => ['--version', $version],
     },
 
-    ($wait and !$render_to_real) ? {
+    ($wait and !$render_to) ? {
       true    => ['--wait', '--timeout', '1h'],
       default => [],
     },

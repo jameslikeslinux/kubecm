@@ -1,0 +1,14 @@
+---
+include:
+  - 'myproject::myapp'
+
+resources:
+  deployment:
+    apiVersion: v1
+    kind: Deployment
+    metadata:
+      name: "%{myproject::myapp::app_name}-deployment"
+      namespace: "%{kubecm::deploy::namespace}"
+      labels:
+        app_name: "%{myproject::myapp::app_label}"
+        release: "%{myproject::release}"

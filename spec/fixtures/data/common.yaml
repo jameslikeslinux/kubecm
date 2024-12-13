@@ -1,0 +1,19 @@
+---
+kubecm::deploy::include_key: 'include'
+kubecm::deploy::resources_key: 'resources'
+kubecm::deploy::values_key: 'values'
+kubecm::deploy::patches_key: 'patches'
+
+include:
+  - 'myproject'
+
+resources:
+  secrets:
+    - apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "%{myproject::release}-registry-auths"
+        namespace: "%{kubecm::deploy::namespace}"
+      data:
+        .dockerconfigjson: "%{myproject::registry_auths}"
+      type: kubernetes.io/dockerconfigjson
