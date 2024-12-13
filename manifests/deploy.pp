@@ -35,6 +35,9 @@ class kubecm::deploy (
   # Include custom classes that define other variables for lookups
   lookup($include_key, Array[String], 'unique', []).reverse.include
 
+  # Perform a second lookup since the first can change the hierarchy
+  lookup($include_key, Array[String], 'unique', []).reverse.include
+
   $resources = lookup($resources_key, Hash, 'hash', {}) - $remove_resources
   $values    = lookup($values_key, Hash, 'deep', {})
   $patches   = lookup($patches_key, Hash, 'hash', {})
