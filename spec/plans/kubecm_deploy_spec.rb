@@ -110,4 +110,24 @@ describe 'kubecm::deploy' do
         'wait'    => true,
       })
   end
+
+  it 'sleeps additional time if requested' do
+    allow_any_command
+    expect_out_message.with_params('Waiting 10 seconds')
+    run_plan('kubecm::deploy',
+      {
+        'release' => 'test',
+        'sleep'   => 10,
+      })
+  end
+
+  it 'skips the plan entirely if requested' do
+    allow_any_command.not_be_called
+    allow_any_plan.not_be_called
+    run_plan('kubecm::deploy',
+      {
+        'release' => 'test',
+        'deploy'  => false,
+      })
+  end
 end
