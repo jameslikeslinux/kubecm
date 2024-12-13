@@ -6,7 +6,7 @@ require 'yaml'
 describe 'kubecm::deploy' do
   let(:params) do
     {
-      'build_dir' => '/build',
+      'release_build_dir' => '/build/myrelease-test',
     }
   end
 
@@ -90,7 +90,7 @@ describe 'kubecm::deploy' do
       },
     ].map(&:to_yaml).join
 
-    it { is_expected.to contain_file('/build/resources.yaml').with_content(resources) }
+    it { is_expected.to contain_file('/build/myrelease-test/resources.yaml').with_content(resources) }
   end
 
   describe 'kustomization config' do
@@ -100,7 +100,7 @@ describe 'kubecm::deploy' do
           'resources' => ['resources.yaml', 'helm.yaml']
         }.to_yaml.split("\n")[1..-1].join("\n")
 
-        it { is_expected.to contain_file('/build/kustomization.yaml').with_content(%r{#{Regexp.escape(resources)}}) }
+        it { is_expected.to contain_file('/build/myrelease-test/kustomization.yaml').with_content(%r{#{Regexp.escape(resources)}}) }
       end
 
       context 'with subcharts' do
@@ -116,7 +116,7 @@ describe 'kubecm::deploy' do
           'resources' => ['subchart1.yaml', 'subchart2.yaml', 'resources.yaml', 'helm.yaml']
         }.to_yaml.split("\n")[1..-1].join("\n")
 
-        it { is_expected.to contain_file('/build/kustomization.yaml').with_content(%r{#{Regexp.escape(resources)}}) }
+        it { is_expected.to contain_file('/build/myrelease-test/kustomization.yaml').with_content(%r{#{Regexp.escape(resources)}}) }
       end
     end
   end

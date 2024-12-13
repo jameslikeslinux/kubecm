@@ -11,13 +11,17 @@
 #   * kubecm::deploy::version
 #
 # @param include_key Hiera key mapping a list of custom classes to declare
+# @param resources_key Hiera key mapping a hash of resources to deploy
+# @param values_key Hiera key mapping a hash of values to apply to the chart
+# @param patches_key Hiera key mapping a hash of Kustomize patches to apply, ordered by key.
+# @param release_build_dir Deployment-specific place to compile manifests. Will be purged!
 # @api private
 class kubecm::deploy (
-  String $build_dir,
   String $include_key,
   String $resources_key,
   String $values_key,
   String $patches_key,
+  String $release_build_dir,
   Array[String] $remove_resources = [],
   Array[String] $subchart_manifests = [],
 ) {
@@ -43,16 +47,21 @@ class kubecm::deploy (
   $patches   = lookup($patches_key, Hash, 'hash', {})
 
   file {
-    $build_dir:
-      ensure  => directory;
+    $release_build_dir:
+      ensure  => directory,
+      purge   => true, # clean out old files
+      recurse => true; # recursively
 
-    "${build_dir}/resources.yaml":
+    $subchart_manifests.map |$manifest| { "${release_build_dir}/${manifest}" }:
+      ensure => present;  # don't purge subcharts
+
+    "${release_build_dir}/resources.yaml":
       content => $resources.values.flatten.map |$r| { if $r.empty { '' } else { $r.stdlib::to_yaml } }.join;
 
-    "${build_dir}/values.yaml":
+    "${release_build_dir}/values.yaml":
       content => $values.stdlib::to_yaml;
 
-    "${build_dir}/kustomization.yaml":
+    "${release_build_dir}/kustomization.yaml":
       content => {
         'resources' => $subchart_manifests + ['resources.yaml', 'helm.yaml'],
         'patches'   => $patches.keys.sort.map |$k| { $patches[$k] }.flatten.map |$p| {
@@ -64,7 +73,7 @@ class kubecm::deploy (
         },
       }.stdlib::to_yaml;
 
-    "${build_dir}/kustomize.sh":
+    "${release_build_dir}/kustomize.sh":
       mode   => '0755',
       source => 'puppet:///modules/kubecm/kustomize.sh';
   }
@@ -77,12 +86,10 @@ class kubecm::deploy (
     }
 
     file {
-      "${build_dir}/chart":
-        ensure  => directory,
-        purge   => true, # clean out old files
-        recurse => true; # recursively
+      "${release_build_dir}/chart":
+        ensure  => directory;
 
-      "${build_dir}/chart/Chart.yaml":
+      "${release_build_dir}/chart/Chart.yaml":
         content => {
           'apiVersion'  => 'v2',
           'name'        => $chart,
@@ -93,9 +100,8 @@ class kubecm::deploy (
         }.stdlib::to_yaml;
     }
   } elsif $chart_source =~ Stdlib::Filesource {
-    file { "${build_dir}/chart":
+    file { "${release_build_dir}/chart":
       ensure  => directory,
-      purge   => true,
       recurse => true,
       source  => $chart_source,
     }

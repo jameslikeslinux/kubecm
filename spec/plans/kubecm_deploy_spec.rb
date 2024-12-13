@@ -7,12 +7,20 @@ describe 'kubecm::deploy' do
   before(:each) do
     BoltSpec::Plans.init
     allow_command('pwd').always_return({ 'stdout' => '/fakedir' })
+    allow_command 'mkdir -p /fakedir/build/test'
     allow_apply
   end
 
   it 'uses the specified build_dir' do
     expect_command('pwd').not_be_called
-    expect_command('helm upgrade --install test /mybuilddir/chart --post-renderer /mybuilddir/kustomize.sh --post-renderer-args /mybuilddir --values /mybuilddir/values.yaml')
+    expect_command 'mkdir -p /mybuilddir/test'
+    expect_command <<~CMD.chomp
+      helm upgrade --install test /mybuilddir/test/chart \
+      --post-renderer /mybuilddir/test/kustomize.sh \
+      --post-renderer-args /mybuilddir/test \
+      --values /mybuilddir/test/values.yaml
+    CMD
+
     run_plan('kubecm::deploy',
       {
         'release'      => 'test',
@@ -21,7 +29,13 @@ describe 'kubecm::deploy' do
   end
 
   it 'deploys an empty chart when chart_source is undef' do
-    expect_command('helm upgrade --install test /fakedir/build/chart --post-renderer build/kustomize.sh --post-renderer-args build --values build/values.yaml')
+    expect_command <<~CMD.chomp
+      helm upgrade --install test /fakedir/build/test/chart \
+      --post-renderer /fakedir/build/test/kustomize.sh \
+      --post-renderer-args /fakedir/build/test \
+      --values /fakedir/build/test/values.yaml
+    CMD
+
     run_plan('kubecm::deploy',
       {
         'release' => 'test',
@@ -29,17 +43,29 @@ describe 'kubecm::deploy' do
   end
 
   it 'deploys a local chart when chart_source is an absolute path' do
-    expect_command('helm upgrade --install test /fakedir/build/chart --post-renderer build/kustomize.sh --post-renderer-args build --values build/values.yaml')
+    expect_command <<~CMD.chomp
+      helm upgrade --install test /fakedir/build/test/chart \
+      --post-renderer /fakedir/build/test/kustomize.sh \
+      --post-renderer-args /fakedir/build/test \
+      --values /fakedir/build/test/values.yaml
+    CMD
+
     run_plan('kubecm::deploy',
       {
         'release'      => 'test',
-        'chart_source' => '/mychart', # gets copied to /fakedir/build/chart
+        'chart_source' => '/mychart', # gets copied to /fakedir/build/test/chart
       })
   end
 
   it 'deploys a chart from a repo' do
-    expect_command('helm repo add fakerepo https://example.com/fakerepo')
-    expect_command('helm upgrade --install test fakerepo/fakechart --post-renderer build/kustomize.sh --post-renderer-args build --values build/values.yaml')
+    expect_command 'helm repo add fakerepo https://example.com/fakerepo'
+    expect_command <<~CMD.chomp
+      helm upgrade --install test fakerepo/fakechart \
+      --post-renderer /fakedir/build/test/kustomize.sh \
+      --post-renderer-args /fakedir/build/test \
+      --values /fakedir/build/test/values.yaml
+    CMD
+
     run_plan('kubecm::deploy',
       {
         'release'      => 'test',
@@ -49,7 +75,13 @@ describe 'kubecm::deploy' do
   end
 
   it 'deploys a chart from an oci:// URI' do
-    expect_command('helm upgrade --install test oci://example.com/fakerepo/fakechart --post-renderer build/kustomize.sh --post-renderer-args build --values build/values.yaml')
+    expect_command <<~CMD.chomp
+      helm upgrade --install test oci://example.com/fakerepo/fakechart \
+      --post-renderer /fakedir/build/test/kustomize.sh \
+      --post-renderer-args /fakedir/build/test \
+      --values /fakedir/build/test/values.yaml
+    CMD
+
     run_plan('kubecm::deploy',
       {
         'release'      => 'test',
@@ -58,7 +90,13 @@ describe 'kubecm::deploy' do
   end
 
   it 'deploys a local chart from a relative path' do
-    expect_command('helm upgrade --install test ./mychart --post-renderer build/kustomize.sh --post-renderer-args build --values build/values.yaml')
+    expect_command <<~CMD.chomp
+      helm upgrade --install test ./mychart \
+      --post-renderer /fakedir/build/test/kustomize.sh \
+      --post-renderer-args /fakedir/build/test \
+      --values /fakedir/build/test/values.yaml
+    CMD
+
     run_plan('kubecm::deploy',
       {
         'release'      => 'test',
@@ -67,7 +105,13 @@ describe 'kubecm::deploy' do
   end
 
   it 'renders a chart to a specified file' do
-    expect_command('helm template test /fakedir/build/chart --post-renderer build/kustomize.sh --post-renderer-args build --values build/values.yaml > test.yaml')
+    expect_command <<~CMD.chomp
+      helm template test /fakedir/build/test/chart \
+      --post-renderer /fakedir/build/test/kustomize.sh \
+      --post-renderer-args /fakedir/build/test \
+      --values /fakedir/build/test/values.yaml > test.yaml
+    CMD
+
     run_plan('kubecm::deploy',
       {
         'release'   => 'test',
@@ -76,7 +120,14 @@ describe 'kubecm::deploy' do
   end
 
   it 'deploys without hooks if requested' do
-    expect_command('helm upgrade --install test /fakedir/build/chart --no-hooks --post-renderer build/kustomize.sh --post-renderer-args build --values build/values.yaml')
+    expect_command <<~CMD.chomp
+      helm upgrade --install test /fakedir/build/test/chart \
+      --no-hooks \
+      --post-renderer /fakedir/build/test/kustomize.sh \
+      --post-renderer-args /fakedir/build/test \
+      --values /fakedir/build/test/values.yaml
+    CMD
+
     run_plan('kubecm::deploy',
       {
         'release' => 'test',
@@ -85,16 +136,31 @@ describe 'kubecm::deploy' do
   end
 
   it 'deploys to the specified namespace' do
-    expect_command('helm upgrade --install test /fakedir/build/chart --create-namespace --namespace test --post-renderer build/kustomize.sh --post-renderer-args build --values build/values.yaml')
+    expect_command 'mkdir -p /fakedir/build/test-ns'
+    expect_command <<~CMD.chomp
+      helm upgrade --install test /fakedir/build/test-ns/chart \
+      --create-namespace --namespace ns \
+      --post-renderer /fakedir/build/test-ns/kustomize.sh \
+      --post-renderer-args /fakedir/build/test-ns \
+      --values /fakedir/build/test-ns/values.yaml
+    CMD
+
     run_plan('kubecm::deploy',
       {
         'release'   => 'test',
-        'namespace' => 'test',
+        'namespace' => 'ns',
       })
   end
 
   it 'deploys to the specified version' do
-    expect_command('helm upgrade --install test /fakedir/build/chart --post-renderer build/kustomize.sh --post-renderer-args build --values build/values.yaml --version 1.2.3')
+    expect_command <<~CMD.chomp
+      helm upgrade --install test /fakedir/build/test/chart \
+      --post-renderer /fakedir/build/test/kustomize.sh \
+      --post-renderer-args /fakedir/build/test \
+      --values /fakedir/build/test/values.yaml \
+      --version 1.2.3
+    CMD
+
     run_plan('kubecm::deploy',
       {
         'release' => 'test',
@@ -103,7 +169,14 @@ describe 'kubecm::deploy' do
   end
 
   it 'waits for the deployment if requested' do
-    expect_command('helm upgrade --install test /fakedir/build/chart --post-renderer build/kustomize.sh --post-renderer-args build --values build/values.yaml --wait --timeout 1h')
+    expect_command <<~CMD.chomp
+      helm upgrade --install test /fakedir/build/test/chart \
+      --post-renderer /fakedir/build/test/kustomize.sh \
+      --post-renderer-args /fakedir/build/test \
+      --values /fakedir/build/test/values.yaml \
+      --wait --timeout 1h
+    CMD
+
     run_plan('kubecm::deploy',
       {
         'release' => 'test',

@@ -34,35 +34,46 @@ plan kubecm::deploy (
   String            $build_dir        = lookup('kubecm::deploy::build_dir'),
 ) {
   if $deploy {
+    if $namespace {
+      $build_name = "${release}-${namespace}"
+    } else {
+      $build_name = $release
+    }
+
+    if $build_dir =~ Stdlib::Absolutepath {
+      $abs_build_dir = $build_dir
+      $release_build_dir = file::join($build_dir, $build_name)
+    } else {
+      $pwd = run_command('pwd', 'localhost', 'Determine current working directory').first.value['stdout'].chomp
+      $abs_build_dir = file::join($pwd, $build_dir)
+      $release_build_dir = file::join($abs_build_dir, $build_name)
+    }
+
+    run_command("mkdir -p ${release_build_dir.shellquote}", 'localhost', 'Ensure the release build dir exists')
+
     $subchart_manifests = $subcharts.map |$subchart| {
       $manifest = "${subchart['release']}.yaml"
       run_plan('kubecm::deploy', $subchart + {
+          build_dir => $abs_build_dir,
           parent    => $release,
           namespace => $namespace,
-          render_to => "${build_dir}/${manifest}",
+          render_to => "${release_build_dir}/${manifest}",
         }
       )
       $manifest
     }
 
-    if $build_dir =~ Stdlib::Absolutepath {
-      $build_dir_real = $build_dir
-    } else {
-      $pwd = run_command('pwd', 'localhost', 'Determine current working directory').first.value['stdout'].chomp
-      $build_dir_real = file::join($pwd, $build_dir)
-    }
-
     # Build Kustomize config
     apply('localhost') {
       class { 'kubecm::deploy':
-        build_dir          => $build_dir_real,
+        release_build_dir  => $release_build_dir,
         remove_resources   => $remove_resources,
         subchart_manifests => $subchart_manifests,
       }
     }.kubecm::print_report
 
     if !$chart_source or $chart_source =~ Stdlib::Filesource {
-      $chart_source_real = "${build_dir_real}/chart"
+      $chart_source_real = "${release_build_dir}/chart"
     } elsif $chart_source =~ /^([\w-]+)\// and $repo_url {
       $chart_source_real = $chart_source
       $repo_name = $1
@@ -94,9 +105,9 @@ plan kubecm::deploy (
         default => ['--create-namespace', '--namespace', $namespace],
       },
 
-      '--post-renderer', "${build_dir}/kustomize.sh",
-      '--post-renderer-args', $build_dir,
-      '--values', "${build_dir}/values.yaml",
+      '--post-renderer', "${release_build_dir}/kustomize.sh",
+      '--post-renderer-args', $release_build_dir,
+      '--values', "${release_build_dir}/values.yaml",
 
       $version ? {
         undef   => [],
