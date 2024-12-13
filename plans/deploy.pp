@@ -63,7 +63,7 @@ plan kubecm::deploy (
 
     if !$chart_source or $chart_source =~ Stdlib::Filesource {
       $chart_source_real = "${build_dir_real}/chart"
-    } elsif $chart_source =~ /^(\w+)\// and $repo_url {
+    } elsif $chart_source =~ /^([\w-]+)\// and $repo_url {
       $chart_source_real = $chart_source
       $repo_name = $1
       $helm_repo_add_cmd = "helm repo add ${repo_name.shellquote} ${repo_url.shellquote}"
