@@ -4,7 +4,9 @@
   "author": "James Lee",
   "summary": "Control Kubernetes with Puppet",
   "license": "Apache-2.0",
-  "source": "https://github.com/jameslikeslinux/kubecm",
+  "source": "https://github.com/jameslikeslinux/kubecm.git",
+  "project_page": "https://github.com/jameslikeslinux/kubecm",
+  "issues_url": "https://github.com/jameslikeslinux/kubecm/issues",
   "dependencies": [
     {
       "name": "puppetlabs-stdlib",

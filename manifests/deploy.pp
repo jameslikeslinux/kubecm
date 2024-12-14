@@ -1,4 +1,4 @@
-# Puppet entrypoint for the kubecm::deploy plan
+# @summary Puppet entrypoint for the kubecm::deploy plan
 #
 # This defines the following variables for use in your Hiera hierarchy
 # and data, and declares other classes for your own custom variables.
@@ -15,6 +15,8 @@
 # @param values_key Hiera key mapping a hash of values to apply to the chart
 # @param patches_key Hiera key mapping a hash of Kustomize patches to apply, ordered by key.
 # @param release_build_dir Deployment-specific place to compile manifests. Will be purged!
+# @param remove_resources Resource keys to remove from deployment
+# @param subchart_manifests List of already-generated subchart manifests to deploy
 # @api private
 class kubecm::deploy (
   String $include_key,
