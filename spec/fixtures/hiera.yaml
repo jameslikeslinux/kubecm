@@ -17,8 +17,3 @@ hierarchy:
   - name: 'Common'
     paths:
       - 'common.yaml'
-
-plan_hierarchy:
-  - name: 'Common'
-    paths:
-      - 'common.yaml'

@@ -21,7 +21,7 @@ class kubecm::deploy (
   String $resources_key,
   String $values_key,
   String $patches_key,
-  String $release_build_dir,
+  Stdlib::Absolutepath $release_build_dir,
   Array[String] $remove_resources = [],
   Array[String] $subchart_manifests = [],
 ) {
