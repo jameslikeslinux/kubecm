@@ -41,7 +41,7 @@ and reusability.
 - **Integrated Orchestration**: Bolt-powered orchestration for on-demand or
   scheduled deployments.
 - **Cloud Transition**: Leverage existing Puppet data and automation to ease
-  transitions to Kubernetes.
+  migrations to Kubernetes.
 
 ## Motivation
 
@@ -459,13 +459,6 @@ Contributions are welcome! Follow these steps to contribute:
      - name: kubecm
        git: <repo-url>
        ref: <branch-name>
-       resolve: false
-   ```
-
-   Create a `Puppetfile` (if it doesn't exist) and add:
-
-   ```ruby
-   mod 'kubecm', :git => '<repo-url>', :branch => '<branch-name>'
    ```
 
    Then run:
