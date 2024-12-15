@@ -101,7 +101,6 @@ class kubecm::deploy (
           'description' => 'KubeCM deployment',
           'type'        => 'application',
           'version'     => $fake_chart_version,
-          'appVersion'  => $fake_chart_version,
         }.stdlib::to_yaml;
     }
   } elsif $chart_source =~ Stdlib::Filesource {
