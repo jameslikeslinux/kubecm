@@ -37,6 +37,7 @@ The following parameters are available in the `kubecm::deploy` plan:
 * [`hooks`](#-kubecm--deploy--hooks)
 * [`namespace`](#-kubecm--deploy--namespace)
 * [`remove_resources`](#-kubecm--deploy--remove_resources)
+* [`remove_patches`](#-kubecm--deploy--remove_patches)
 * [`render_to`](#-kubecm--deploy--render_to)
 * [`repo_url`](#-kubecm--deploy--repo_url)
 * [`version`](#-kubecm--deploy--version)
@@ -97,7 +98,15 @@ Default value: `undef`
 
 Data type: `Array[String]`
 
-A list of keys to remove from the resources map (i.e. don't deploy these!)
+A list of keys to remove from the resources hash (i.e. don't deploy these!)
+
+Default value: `[]`
+
+##### <a name="-kubecm--deploy--remove_patches"></a>`remove_patches`
+
+Data type: `Array[String]`
+
+A list of keys to remove from the patches hash (i.e. don't apply these!)
 
 Default value: `[]`
 

@@ -16,16 +16,18 @@
 # @param patches_key Hiera key mapping a hash of Kustomize patches to apply, ordered by key.
 # @param release_build_dir Deployment-specific place to compile manifests. Will be purged!
 # @param remove_resources Resource keys to remove from deployment
+# @param remove_patches Patch keys to remove from kustomization
 # @param subchart_manifests List of already-generated subchart manifests to deploy
 # @api private
 class kubecm::deploy (
-  String $include_key,
-  String $resources_key,
-  String $values_key,
-  String $patches_key,
+  String               $include_key,
+  String               $resources_key,
+  String               $values_key,
+  String               $patches_key,
   Stdlib::Absolutepath $release_build_dir,
-  Array[String] $remove_resources = [],
-  Array[String] $subchart_manifests = [],
+  Array[String]        $remove_resources   = [],
+  Array[String]        $remove_patches     = [],
+  Array[String]        $subchart_manifests = [],
 ) {
   # Bring plan variables into class scope for lookups
   # (class parameters can't be used in lookups until after it's fully loaded)
@@ -46,7 +48,7 @@ class kubecm::deploy (
 
   $resources = lookup($resources_key, Hash, 'hash', {}) - $remove_resources
   $values    = lookup($values_key, Hash, 'deep', {})
-  $patches   = lookup($patches_key, Hash, 'hash', {})
+  $patches   = lookup($patches_key, Hash, 'hash', {}) - $remove_patches
 
   file {
     $release_build_dir:

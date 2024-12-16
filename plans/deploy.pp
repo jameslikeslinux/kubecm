@@ -7,7 +7,8 @@
 # @param deploy           Run or skip the deployment
 # @param hooks            Enable or disable install hooks
 # @param namespace        Kubernetes namespace to manage
-# @param remove_resources A list of keys to remove from the resources map (i.e. don't deploy these!)
+# @param remove_resources A list of keys to remove from the resources hash (i.e. don't deploy these!)
+# @param remove_patches   A list of keys to remove from the patches hash (i.e. don't apply these!)
 # @param render_to        Just save the fully-rendered chart to this yaml file
 # @param repo_url         Optional URL of the Helm repo to add
 # @param version          Optional Helm chart version
@@ -24,6 +25,7 @@ plan kubecm::deploy (
   Boolean           $hooks            = true,
   Optional[String]  $namespace        = undef,
   Array[String]     $remove_resources = [],
+  Array[String]     $remove_patches   = [],
   Optional[String]  $render_to        = undef,
   Optional[String]  $repo_url         = undef,
   Optional[String]  $version          = undef,
@@ -68,6 +70,7 @@ plan kubecm::deploy (
       class { 'kubecm::deploy':
         release_build_dir  => $release_build_dir,
         remove_resources   => $remove_resources,
+        remove_patches     => $remove_patches,
         subchart_manifests => $subchart_manifests,
       }
     }.kubecm::print_report
