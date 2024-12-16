@@ -74,19 +74,10 @@ Ensure the following tools are installed and configured on a Linux system:
    bolt project init
    ```
 
-2. **Add KubeCM to `bolt-project.yaml`**:
-
-   ```yaml
-   ---
-   name: acme_inc
-   modules:
-     - jtl-kubecm
-   ```
-
-3. **Install the module**:
+2. **Install the module**:
 
    ```bash
-   bolt module install
+   bolt module add jtl-kubecm
    ```
 
 ### Usage
